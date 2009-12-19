@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>jQuery getObject - Unit Tests</title>
+
+<script type="text/javascript" src="../shared/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="testrunner.js"></script>
+<link rel="stylesheet" href="testsuite.css">
+
+<script type="text/javascript" src="../jquery.ba-getobject.js"></script>
+<script type="text/javascript" language="javascript">
+<!--
+$(function(){ // START CLOSURE
+
+test("$.setObject", function() {
+  expect(19);
+  
+  window.foo = {};
+  
+  var foo = {}, bar = 1;
+  
+  equals( $.setObject( 'a.b.c', 1, foo ), 1, "local foo object updated" );
+  same( foo, { a: { b: { c: 1 } } }, "local foo object" );
+  
+  equals( $.setObject( 'a.b.c.d', 2, foo ), undefined, "foo.a.b.c not an object, local foo object not updated" );
+  same( foo, { a: { b: { c: 1 } } }, "local foo object" );
+  
+  equals( $.setObject( 'c.d', 3, foo.a.b ), undefined, "foo.a.b.c not an object, local foo object not updated" );
+  same( foo, { a: { b: { c: 1 } } }, "local foo object" );
+  
+  same( $.setObject( 'foo.d.e.f', {} ), {}, "window.foo object updated (context omitted)" );
+  same( window.foo, { d: { e: { f: {} } } }, "window.foo object" );
+  same( foo, { a: { b: { c: 1 } } }, "local foo object" );
+  
+  equals( $.setObject( 'foo.d.e.f.g', 4, window ), 4, "window.foo object updated (context specified)" );
+  same( window.foo, { d: { e: { f: { g: 4 } } } }, "window.foo object" );
+  
+  equals( $.setObject( 'a', 5, bar ), undefined, "local bar not an object, not updated" );
+  equals( bar, 1, "local bar" );
+  
+  equals( $.setObject( 'a.b.c', 6, bar ), undefined, "local bar not an object, not updated" );
+  equals( bar, 1, "local bar" );
+  
+  var display = $('body').css('display');
+  
+  equals( $.setObject( 'document.body.style.display', 'none' ), 'none', "document.body.style.display updated" );
+  equals( $('body').css('display'), 'none', "document.body.style.display property" );
+  
+  equals( $.setObject( 'body.style.display', display, document ), display, "document.body.style.display updated" );
+  equals( $('body').css('display'), display, "document.body.style.display property" );
+  
+});
+
+test("$.getObject", function() {
+  expect(11);
+  
+  window.foo = { a: 1 };
+  
+  var foo = { a: 2 }, bar = 1;
+  
+  equals( $.getObject( 'foo.a' ), 1, "object and property exist (context omitted)" );
+  equals( $.getObject( 'foo.a', window ), 1, "object and property exist (context specified)" );
+  equals( $.getObject( 'a', foo ), 2, "object and property exist" );
+  equals( $.getObject( 'b', foo ), undefined, "foo.b does not exist" );
+  
+  equals( $.getObject( 'a', bar ), undefined, "bar is not an object" );
+  equals( $.getObject( 'a.b.c', bar ), undefined, "bar is not an object" );
+  
+  equals( $.getObject( 'b.c', true, foo ), foo.b.c, "foo.b.c didn't exist, but is created" );
+  same( foo, { a: 2, b: { c: {} } }, "local foo object" );
+  
+  foo.b.c = 3;
+  
+  equals( $.getObject( 'b.c', true, foo ), 3, "object and property exist" );
+  equals( $.getObject( 'b.c.d', true, foo ), undefined, "foo.b.c.d not an object, local foo object not updated" );
+  same( foo, { a: 2, b: { c: 3 } }, "local foo object" );
+  
+});
+
+test("$.exists", function() {
+  expect(18);
+  
+  window.foo = { a1: 1, b1: 0, c1: false, d1: null, e1: '' };
+  
+  var foo = { a0: 1, b0: 0, c0: false, d0: null, e0: '' };
+  
+  equals( $.exists( 'a0', foo ), true, "property is defined, truthy" );
+  equals( $.exists( 'b0', foo ), true, "property is defined, falsy" );
+  equals( $.exists( 'c0', foo ), true, "property is defined, falsy" );
+  equals( $.exists( 'd0', foo ), true, "property is defined, falsy" );
+  equals( $.exists( 'e0', foo ), true, "property is defined, falsy" );
+  equals( $.exists( 'f0', foo ), false, "property is not defined" );
+  
+  equals( $.exists( 'foo.a1', window ), true, "property is defined, truthy" );
+  equals( $.exists( 'foo.b1', window ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.c1', window ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.d1', window ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.e1', window ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.f1', window ), false, "property is not defined" );
+  
+  equals( $.exists( 'foo.a1' ), true, "property is defined, truthy" );
+  equals( $.exists( 'foo.b1' ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.c1' ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.d1' ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.e1' ), true, "property is defined, falsy" );
+  equals( $.exists( 'foo.f1' ), false, "property is not defined" );
+  
+});
+
+/*
+  var foo = { a: 1, b: 0, c: false, d: null, e: '' };
+  
+  $.exists(foo, 'a');                   // returns true (property is defined and truthy)
+  $.exists(foo, 'b');                   // returns true (property is defined and falsy)
+  $.exists(foo, 'c');                   // returns true (property is defined and false)
+  $.exists('foo.d');                    // returns true (property is defined and falsy)
+  $.exists('foo.e');                    // returns true (property is defined and falsy)
+  $.exists('foo.f');                    // returns false (property is not defined)
+*/
+
+}); // END CLOSURE
+//-->
+</script>
+</head>
+<body>
+
+<h1>jQuery getObject - Unit Tests (<a href="http://benalman.com/projects/jquery-getobject-plugin/">Project Home</a>)</h1>
+<h2 id="banner"></h2>
+<h2 id="userAgent"></h2>
+
+<ol id="tests"></ol>
+<div id="main"></div>
+
+</body>
+</html>
