@@ -1,5 +1,5 @@
 /*!
- * jQuery getObject - v1.0 - 12/19/2009
+ * jQuery getObject - v1.1 - 12/24/2009
  * http://benalman.com/projects/jquery-getobject-plugin/
  * 
  * Copyright (c) 2009 "Cowboy" Ben Alman
@@ -11,12 +11,12 @@
 
 // Script: jQuery getObject: get.and.set.deep.objects.easily = true;
 //
-// *Version: 1.0, Last updated: 12/19/2009*
+// *Version: 1.1, Last updated: 12/24/2009*
 // 
 // Project Home - http://benalman.com/projects/jquery-getobject-plugin/
 // GitHub       - http://github.com/cowboy/jquery-getobject/
 // Source       - http://github.com/cowboy/jquery-getobject/raw/master/jquery.ba-getobject.js
-// (Minified)   - http://github.com/cowboy/jquery-getobject/raw/master/jquery.ba-getobject.min.js (0.6kb)
+// (Minified)   - http://github.com/cowboy/jquery-getobject/raw/master/jquery.ba-getobject.min.js (0.7kb)
 // 
 // About: License
 // 
@@ -32,13 +32,26 @@
 // tested with, what browsers it has been tested in, and where the unit tests
 // reside (so you can test it yourself).
 // 
-// jQuery Versions - 1.3.2, 1.4a2
+// jQuery Versions - none, 1.3.2, 1.4a2
 // Browsers Tested - Internet Explorer 6-8, Firefox 2-3.6, Safari 3-4, Chrome, Opera 9.6-10.
 // Unit Tests      - http://benalman.com/code/projects/jquery-getobject/unit/
 // 
 // About: Release History
 // 
+// 1.1 - (12/24/2009) Removed dependency on jQuery. Now creates methods in a
+//       `Cowboy` namespace if jQuery isn't present.
 // 1.0 - (12/19/2009) Initial release
+// 
+// Topic: Note for non-jQuery users
+// 
+// jQuery isn't actually required for this plugin, because nothing internal
+// uses any jQuery methods or properties. jQuery is just used as a namespace
+// under which these methods can exist.
+// 
+// Since jQuery isn't actually required for this plugin, if jQuery doesn't exist
+// when this plugin is loaded, the methods described below will be created in
+// the `Cowboy` namespace. Usage will be exactly the same, but instead of
+// $.method() or jQuery.method(), you'll need to use Cowboy.method().
 // 
 // Topic: Note for Dojo users
 // 
@@ -46,10 +59,16 @@
 // counterparts, with the exception that exists returns true or false based
 // on whether or not a property is defined, not whether it is truthy.
 
-(function($,window,undefined){
+(function(window,undefined){
   '$:nomunge'; // Used by YUI compressor.
   
-  var jq_getObject;
+  // Since jQuery really isn't required for this plugin, use `jQuery` as the
+  // namespace only if it already exists, otherwise use the `Cowboy` namespace,
+  // creating it if necessary.
+  var $ = window.jQuery || window.Cowboy || ( window.Cowboy = {} ),
+    
+    // Method reference.
+    jq_getObject;
   
   // Method: jQuery.getObject
   // 
@@ -155,4 +174,4 @@
     return jq_getObject( name, context ) !== undefined;
   };
   
-})(jQuery,this);
+})(this);
